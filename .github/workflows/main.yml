@@ -10,6 +10,10 @@ permissions:
   pages: write
   id-token: write
 
+defaults:
+  run:
+    working-directory: ./projeto-cicd-deploy
+
 jobs:
   build-and-test:
     name: CI - Instalar, Testar e Buildar
@@ -35,7 +39,7 @@ jobs:
       - name: Preparar artefato para Deploy
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./projeto-cicd-deploy/dist
 
   deploy:
     name: CD - Deploy no GitHub Pages
