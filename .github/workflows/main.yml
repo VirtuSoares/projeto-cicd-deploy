@@ -1,0 +1,50 @@
+name: CI/CD - Testes e Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-test:
+    name: CI - Instalar, Testar e Buildar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Executar Testes Automatizados (Vitest)
+        run: npm test
+
+      - name: Gerar Build de Produção
+        run: npm run build
+
+      - name: Preparar artefato para Deploy
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    name: CD - Deploy no GitHub Pages
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
